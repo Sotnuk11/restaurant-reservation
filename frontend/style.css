@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --bg-color: #f4f6f9;
+    --container-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #e0e0e0;
+    --panel-bg: #f8f9fa;
+    --card-avail: #ffffff;
+    --card-avail-border: #28a745;
+    --card-booked: #fff5f5;
+    --input-bg: #ffffff;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --container-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --border-color: #444444;
+    --panel-bg: #2a2a2a;
+    --card-avail: #252525;
+    --card-avail-border: #2ea043;
+    --card-booked: #3a2020;
+    --input-bg: #2c2c2c;
+}
+
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; transition: background 0.3s; }
+
+.top-bar { max-width: 800px; margin: 0 auto 15px auto; display: flex; justify-content: flex-end; gap: 10px; }
+
+.lang-selector, .theme-btn { padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;}
+.lang-selector:hover, .theme-btn:hover { border-color: #007bff; }
+
+.container { max-width: 800px; margin: 0 auto 40px auto; background: var(--container-bg); padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+
+h2, h3 { color: var(--text-color); }
+
+input, select { width: 100%; padding: 14px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.3s;}
+input:focus, select:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
+
+button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 8px; border: none; font-weight: 600; font-size: 15px; font-family: 'Poppins', sans-serif; color: white; background-color: #28a745; cursor: pointer; transition: all 0.2s ease; }
+button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3); }
+
+.btn-secondary { background-color: #007bff; }
+.btn-secondary:hover { box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3); }
+
+.btn-danger { background-color: #dc3545; width: auto; padding: 10px 20px; }
+.btn-danger:hover { box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3); }
+
+.btn-warning { background-color: #ffc107; color: black; width: auto; padding: 10px 20px;}
+.btn-warning:hover { box-shadow: 0 6px 15px rgba(255, 193, 7, 0.3); }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;}
+.search-panel { background: var(--panel-bg); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);}
+
+#tables-container, #reservations-container, #admin-reservations, #admin-tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+
+.card { padding: 20px; border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color);}
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+.card span { margin-bottom: 12px; }
+.card button { width: 100%; margin: 0; padding: 12px; }
+
+.available { background-color: var(--card-avail); border-left: 6px solid var(--card-avail-border); }
+.booked { background-color: var(--card-booked); border-left: 6px solid #dc3545; opacity: 0.85; }
+.past { opacity: 0.6; filter: grayscale(100%); }
+
+.status-badge { font-weight: 600; font-size: 14px; display: block; margin-top: 5px;}
+.status-booked { color: #dc3545; }
+
+/* Кастомні сповіщення (Toasts) */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 16px 24px; border-radius: 10px; color: white; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: slideInRight 0.3s ease-out forwards; min-width: 250px; text-align: center; }
+.toast.error { background-color: #dc3545; }
+.toast.success { background-color: #28a745; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+/* ІДЕАЛЬНЕ МОДАЛЬНЕ ВІКНО */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(3px); }
+.modal-box { background: var(--container-bg); padding: 35px 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid var(--border-color); }
+.modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+
+/* Виправлені пропорції кнопок */
+.modal-buttons button { margin: 0; padding: 12px 30px; width: auto; min-width: 100px; font-size: 16px; }
+/* КАСТОМНІ СПОВІЩЕННЯ ТА МОДАЛКИ */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 16px 24px; border-radius: 10px; color: white; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: slideInRight 0.3s ease-out forwards; min-width: 250px; text-align: center; }
+.toast.error { background-color: #dc3545; }
+.toast.success { background-color: #28a745; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(3px); }
+.modal-box { background: var(--container-bg); padding: 35px 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid var(--border-color); }
+.modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+.modal-buttons button { margin: 0; padding: 12px 30px; width: auto; min-width: 100px; font-size: 16px; }
