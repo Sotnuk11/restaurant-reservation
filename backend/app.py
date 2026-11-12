@@ -23,7 +23,7 @@ load_dotenv()
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 NAME_RE = re.compile(r"^[A-Za-zЀ-ӿĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s\-']+$")
-TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+TIME_RE = re.compile(r"^([01]\d|2[0-3]):(00|30)$")  # bookings start on a 30-minute grid
 MAX_BOOKINGS_PER_DAY = 2
 
 
@@ -279,8 +279,13 @@ def register_routes(app):
         location = str(body.get("location") or "").strip()[:100]
         if not number or not capacity or capacity > 50:
             return error("Nieprawidłowy numer lub pojemność stolika")
-        if Table.query.filter_by(number=number).first():
+        existing = Table.query.filter_by(number=number).first()
+        if existing and existing.active:
             return error(f"Stolik {number} już istnieje", 409)
+        if existing:  # a previously removed table with this number is reactivated, history is kept
+            existing.active, existing.capacity, existing.location = True, capacity, location
+            db.session.commit()
+            return success(existing.to_dict(), "Stolik przywrócony", 201)
         table = Table(number=number, capacity=capacity, location=location)
         db.session.add(table)
         db.session.commit()
@@ -292,7 +297,11 @@ def register_routes(app):
         table = db.session.get(Table, tid)
         if not table:
             return error("Stolik nie istnieje", 404)
-        db.session.delete(table)  # reservations for this table are removed too
+        # Soft delete: the table disappears from the UI but past reservations stay in the history.
+        # Upcoming confirmed reservations are cancelled so nobody is expected at a table that no longer exists.
+        table.active = False
+        Reservation.query.filter(Reservation.table_id == tid, Reservation.status == "confirmed",
+                                 Reservation.date >= date.today()).update({"status": "cancelled"})
         db.session.commit()
         return success(msg="Usunięto")
 
@@ -310,7 +319,7 @@ def register_routes(app):
 
         if not table_id or not guests:
             return error("Nieprawidłowy stolik lub liczba gości")
-        if not (2 <= len(guest_name) <= 100):
+        if not (2 <= len(guest_name) <= 100) or not NAME_RE.match(guest_name):
             return error("Nieprawidłowe imię gościa")
         if not phone:
             return error("Zły format telefonu")

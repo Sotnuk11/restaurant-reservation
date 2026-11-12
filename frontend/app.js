@@ -233,7 +233,7 @@ async function loadTables() {
                              ${t.available ? `<button onclick="reserveTable(${t.id})">${lang.book}</button>` : `<span class="status-booked">${lang.unavailable}</span>`}`;
             container.appendChild(div);
         });
-    } catch(e) {}
+    } catch(e) { console.error(e); }
 }
 
 async function loadReservations() {
@@ -257,7 +257,7 @@ async function loadReservations() {
                              ${isCancelled ? `<i>${lang.cancelled}</i>` : `<button class="btn-danger" onclick="cancelReservation(${r.id})">${lang.cancel_btn}</button>`}`;
             container.appendChild(div);
         });
-    } catch(e) {}
+    } catch(e) { console.error(e); }
 }
 
 async function reserveTable(tableId) {
@@ -329,7 +329,7 @@ async function loadAdminData() {
             div.innerHTML = `<strong>${lang.table_no}${r.table_number}</strong><br>${lang.client} <b>${escapeHTML(r.guest_name)}</b><br>☎ ${escapeHTML(r.phone)}<br><small>${r.date} ${r.time} [${r.status}]</small>`;
             contR.appendChild(div);
         });
-    } catch(e) {}
+    } catch(e) { console.error(e); }
 }
 
 async function addTable() {

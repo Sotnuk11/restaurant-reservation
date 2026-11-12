@@ -10,8 +10,8 @@ A full-stack table reservation system for a restaurant: guests register, see whi
 - Registration and login (bcrypt, JWT with 8 h expiry), roles `client` and `admin`
 - Live availability search by date, time and number of guests
 - Reservations with validation, a per-user daily limit and cancellation
-- Admin panel: add or remove tables, all reservations, statistics
-- 14 automated API tests that run in CI
+- Admin panel: add or remove tables (removal is a soft delete: history is kept, upcoming bookings are cancelled), all reservations, statistics
+- 15 automated API tests that run in CI
 
 ## Highlight: double booking is prevented by the database
 
@@ -24,6 +24,8 @@ CREATE UNIQUE INDEX uq_confirmed_slot ON reservations (table_id, date, time) WHE
 ```
 
 The API catches the `IntegrityError` and answers `409 Conflict`. Cancelling a reservation frees the slot again (covered by a test).
+
+**Scope:** bookings start on a 30-minute grid (`:00` or `:30`) and the index prevents two confirmed bookings for the same table and start time. Overlapping stays of different lengths are not modelled (no booking duration yet).
 
 ## Security
 
@@ -39,7 +41,7 @@ The API catches the `IntegrityError` and answers `409 Conflict`. Cancelling a re
 | Oversized input | 16 KB request limit, strict type and length checks on every field |
 | Secrets | `.env` is git-ignored; `.env.example` lists the variables |
 
-**Known limitations:** the JWT is stored in `localStorage` (an `HttpOnly` cookie would be stronger against XSS), there are no refresh tokens or e-mail confirmation, and the rate limiter uses in-memory storage (use Redis with several workers).
+**Known limitations:** the per-user daily booking limit is checked in application code and is not atomic under heavy concurrency, the JWT is stored in `localStorage` (an `HttpOnly` cookie would be stronger against XSS), there are no refresh tokens or e-mail confirmation, and the rate limiter uses in-memory storage (use Redis with several workers).
 
 ## Run locally
 

@@ -103,6 +103,8 @@ def test_booking_validation(client):
     assert book(client, h, guests=5).status_code == 400  # table 1 seats 2
     assert book(client, h, guests="abc").status_code == 400
     assert book(client, h, time="25:99").status_code == 400
+    assert book(client, h, time="19:05").status_code == 400  # only :00 and :30 start times
+    assert book(client, h, guest_name="<script>alert(1)</script>").status_code == 400
     assert book(client, h, date="2020-01-01").status_code == 400  # past
     assert book(client, h, table=99).status_code == 404
     assert book(client, h, notes="x" * 301).status_code == 400
@@ -144,3 +146,15 @@ def test_availability_marks_booked_and_too_small_tables(client):
 def test_unknown_route_and_bad_json_do_not_crash(client):
     assert client.post("/api/auth/login", data="{bad", content_type="application/json").status_code == 401
     assert client.get("/api/nope").status_code == 404
+
+
+def test_deleting_a_table_keeps_history_and_cancels_upcoming_bookings(client):
+    admin = hdr(client.post("/api/auth/login", json={"email": "admin@test.pl", "password": ADMIN_PASSWORD}))
+    user = hdr(register(client, 1))
+    rid = book(client, user, table=1).get_json()["data"]["id"]
+    assert client.delete("/api/tables/1", headers=admin).status_code == 200
+    assert 1 not in [t["number"] for t in client.get("/api/tables").get_json()["data"]]
+    mine = client.get("/api/reservations/my", headers=user).get_json()["data"]
+    assert [(r["id"], r["status"]) for r in mine] == [(rid, "cancelled")]  # history kept, booking cancelled
+    # the same number can be added again and is reactivated
+    assert client.post("/api/tables", json={"number": 1, "capacity": 4}, headers=admin).status_code == 201
